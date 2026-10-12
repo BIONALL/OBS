@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0F172A">
+  <meta name="description" content="Portal Siswa BION — satu pintu layanan belajar online BION SD, SMP, dan SMA.">
+  <title>Portal Siswa BION</title>
+
+  <!-- Font: Plus Jakarta Sans (sesuai design system "Lentera Belajar") -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Bootstrap 5 + Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230F172A'/%3E%3Ctext x='16' y='22' font-size='16' font-family='Arial' font-weight='700' fill='%23fff' text-anchor='middle'%3EB%3C/text%3E%3C/svg%3E">
+  <link href="css/style.css" rel="stylesheet">
+</head>
+<body data-jenjang="">
+
+  <a class="skip-link" href="javascript:void(0)" onclick="document.getElementById('app-container').focus()">Lewati ke konten</a>
+
+  <!-- ══════════ HEADER (kaca/blur) ══════════ -->
+  <header class="app-header" id="appHeader">
+    <div class="container-app header-inner">
+      <button class="brand" type="button" onclick="navigateTo('beranda')" aria-label="Kembali ke beranda">
+        <span class="brand-mark" id="brandMark"><i class="bi bi-mortarboard-fill" aria-hidden="true"></i></span>
+        <span class="brand-text">
+          <span class="brand-name"><span id="brandName">BION</span> <span class="brand-chip">PORTAL</span></span>
+          <span class="brand-tagline" id="brandTagline">Bintang Pelajar Online</span>
+        </span>
+      </button>
+
+      <!-- Navigasi atas (tablet/desktop) -->
+      <nav class="top-nav" aria-label="Navigasi utama">
+        <button type="button" class="top-nav-link" data-nav="beranda" onclick="navigateTo('beranda')">Beranda</button>
+        <button type="button" class="top-nav-link" data-nav="pengumuman" onclick="navigateTo('pengumuman')">Pengumuman</button>
+        <button type="button" class="top-nav-link" data-nav="kontak" onclick="navigateTo('kontak')">Kontak</button>
+      </nav>
+
+      <div class="header-actions">
+        <button type="button" class="btn-icon" onclick="toggleDarkMode()" aria-label="Ganti mode terang/gelap" title="Mode gelap">
+          <i class="bi bi-moon-stars" id="themeIcon" aria-hidden="true"></i>
+        </button>
+        <button type="button" class="btn-wa-sm d-none d-md-inline-flex" onclick="openCsSheet()">
+          <i class="bi bi-whatsapp" aria-hidden="true"></i> Kontak CS
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ══════════ KONTAINER SPA ══════════ -->
+  <main id="app-container" class="app-main" tabindex="-1" aria-live="polite">
+    <!-- Skeleton awal (cold start GAS) — diganti oleh render() -->
+    <div class="container-app py-3">
+      <div class="skeleton sk-hero"></div>
+      <div class="skeleton sk-title"></div>
+      <div class="grid-3">
+        <div class="skeleton sk-card"></div><div class="skeleton sk-card"></div><div class="skeleton sk-card"></div>
+      </div>
+      <div class="skeleton sk-title"></div>
+      <div class="skeleton sk-row"></div><div class="skeleton sk-row"></div>
+    </div>
+  </main>
+
+  <!-- ══════════ FOOTER ══════════ -->
+  <footer class="app-footer" id="appFooter">
+    <div class="container-app footer-inner">
+      <span>© <span id="footerYear"></span> Bintang Pelajar Online (BION)</span>
+      <button type="button" class="footer-link" onclick="navigateTo('staf')">Portal Staf</button>
+    </div>
+  </footer>
+
+  <!-- Tombol mengambang Tanya CS (ponsel) -->
+  <button type="button" class="fab-cs" id="fabCs" onclick="openCsSheet()" aria-label="Tanya CS lewat WhatsApp">
+    <i class="bi bi-chat-square-text-fill" aria-hidden="true"></i><span>Tanya CS</span>
+  </button>
+
+  <!-- ══════════ NAVIGASI BAWAH (ponsel) ══════════ -->
+  <nav class="bottom-nav" id="bottomNav" aria-label="Navigasi bawah">
+    <button type="button" class="bn-item" data-nav="beranda" onclick="navigateTo('beranda')">
+      <i class="bi bi-house-door-fill" aria-hidden="true"></i><span>Beranda</span>
+    </button>
+    <button type="button" class="bn-item" data-nav="pengumuman" onclick="navigateTo('pengumuman')">
+      <i class="bi bi-megaphone-fill" aria-hidden="true"></i><span>Pengumuman</span>
+    </button>
+    <button type="button" class="bn-item" data-nav="kontak" onclick="navigateTo('kontak')">
+      <i class="bi bi-chat-dots-fill" aria-hidden="true"></i><span>Kontak</span>
+    </button>
+  </nav>
+
+  <!-- ══════════ MODAL: Detail Pengumuman ══════════ -->
+  <div class="modal fade" id="detailModal" tabindex="-1" aria-labelledby="detailTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg modal-fullscreen-sm-down">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title h-md" id="detailTitle">Pengumuman</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+        </div>
+        <div class="modal-body" id="detailBody"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ MODAL: Pratinjau Berkas (foto/PDF) ══════════ -->
+  <div class="modal fade" id="previewModal" tabindex="-1" aria-labelledby="previewTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl modal-fullscreen-md-down">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title h-sm text-truncate" id="previewTitle">Pratinjau</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+        </div>
+        <div class="modal-body p-0 preview-body" id="previewBody"></div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-soft" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i> Tutup</button>
+          <a id="previewDownload" href="#" target="_blank" rel="noopener" class="btn btn-brand"><i class="bi bi-download"></i> Unduh</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ MODAL: Pilih CS WhatsApp ══════════ -->
+  <div class="modal fade" id="csModal" tabindex="-1" aria-labelledby="csTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title h-md" id="csTitle"><i class="bi bi-whatsapp text-wa"></i> Hubungi Staf BION</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+        </div>
+        <div class="modal-body" id="csBody"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ MODAL: Konfirmasi ══════════ -->
+  <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+      <div class="modal-content">
+        <div class="modal-body text-center p-4">
+          <div class="confirm-icon"><i class="bi bi-exclamation-triangle-fill"></i></div>
+          <h2 class="h-md mt-3" id="confirmTitle">Yakin?</h2>
+          <p class="text-muted mb-0" id="confirmText"></p>
+        </div>
+        <div class="modal-footer justify-content-center border-0 pt-0">
+          <button type="button" class="btn btn-soft" data-bs-dismiss="modal">Batal</button>
+          <button type="button" class="btn btn-danger-soft" id="confirmOk">Ya, lanjutkan</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ TOAST ══════════ -->
+  <div class="toast-container position-fixed toast-pos p-3">
+    <div id="appToast" class="toast app-toast" role="status" aria-live="polite" aria-atomic="true">
+      <div class="d-flex align-items-start gap-2 p-3">
+        <i class="bi" id="toastIcon" aria-hidden="true"></i>
+        <div class="flex-grow-1">
+          <strong class="d-block" id="toastTitle">Info</strong>
+          <span id="toastBody"></span>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Tutup"></button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
