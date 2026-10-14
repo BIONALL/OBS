@@ -36,6 +36,13 @@
       <!-- Navigasi atas (tablet/desktop) -->
       <nav class="top-nav" aria-label="Navigasi utama">
         <button type="button" class="top-nav-link" data-nav="beranda" onclick="navigateTo('beranda')">Beranda</button>
+        <!-- Menu Kelas: klik untuk membuka daftar layanan SD / SMP / SMA -->
+        <div class="nav-dd" id="kelasDd">
+          <button type="button" class="top-nav-link" data-nav="kelas" id="kelasBtn" aria-haspopup="true" aria-expanded="false" aria-controls="kelasPanel" onclick="toggleKelasMenu()">
+            Kelas <i class="bi bi-chevron-down nav-caret" aria-hidden="true"></i>
+          </button>
+          <div class="kelas-panel" id="kelasPanel" hidden></div>
+        </div>
         <button type="button" class="top-nav-link" data-nav="pengumuman" onclick="navigateTo('pengumuman')">Pengumuman</button>
         <button type="button" class="top-nav-link" data-nav="kontak" onclick="navigateTo('kontak')">Kontak</button>
       </nav>
@@ -82,6 +89,9 @@
   <nav class="bottom-nav" id="bottomNav" aria-label="Navigasi bawah">
     <button type="button" class="bn-item" data-nav="beranda" onclick="navigateTo('beranda')">
       <i class="bi bi-house-door-fill" aria-hidden="true"></i><span>Beranda</span>
+    </button>
+    <button type="button" class="bn-item" data-nav="kelas" onclick="openKelasSheet()">
+      <i class="bi bi-grid-fill" aria-hidden="true"></i><span>Kelas</span>
     </button>
     <button type="button" class="bn-item" data-nav="pengumuman" onclick="navigateTo('pengumuman')">
       <i class="bi bi-megaphone-fill" aria-hidden="true"></i><span>Pengumuman</span>
@@ -130,6 +140,35 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
         </div>
         <div class="modal-body" id="csBody"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ MODAL: Join Kelas (pilih jenjang tanpa pindah halaman) ══════════ -->
+  <div class="modal fade" id="joinModal" tabindex="-1" aria-labelledby="joinModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title h-md" id="joinModalTitle"><i class="bi bi-camera-video-fill text-join"></i> Join Kelas</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+        </div>
+        <div class="modal-body">
+          <p class="body-sm mb-3">Pilih jenjang Ananda untuk langsung masuk ke kelas online &amp; jadwal bimbel.</p>
+          <div class="join-list join-list-modal" id="joinBody"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ MODAL: Menu Kelas (ponsel) ══════════ -->
+  <div class="modal fade" id="kelasModal" tabindex="-1" aria-labelledby="kelasModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title h-md" id="kelasModalTitle"><i class="bi bi-grid-fill"></i> Menu Kelas</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+        </div>
+        <div class="modal-body" id="kelasBody"></div>
       </div>
     </div>
   </div>

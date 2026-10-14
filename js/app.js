@@ -306,9 +306,12 @@ function render() {
   const j = params.j || (name === 'layanan' ? String(params.id).split('-')[0] : '');
   document.body.dataset.jenjang = ['jenjang', 'layanan'].includes(name) || (['pengumuman', 'kontak'].includes(name) && j) ? j : '';
   document.body.classList.toggle('mode-frame', false);
+  closeKelasMenu();
 
   // Tandai menu navigasi aktif
-  const navKey = ['pengumuman', 'kontak'].includes(name) ? name : (name === 'staf' ? '' : 'beranda');
+  const navKey = ['pengumuman', 'kontak'].includes(name) ? name
+    : ['jenjang', 'layanan'].includes(name) ? 'kelas'
+    : (name === 'staf' ? '' : 'beranda');
   document.querySelectorAll('[data-nav]').forEach(b => {
     const on = b.dataset.nav === navKey;
     b.classList.toggle('active', on);
@@ -369,16 +372,16 @@ function viewBeranda() {
       <p>Halo Ayah, Bunda &amp; Siswa! Pilih jenjang untuk membuka jadwal kelas, rekap kehadiran, laporan tryout, dan laporan bulanan dalam satu tempat.</p>
       <div class="hero-actions">
         ${last ? `<button class="hero-btn" onclick="navigateTo('jenjang',{j:'${last}'})"><i class="bi bi-arrow-right-circle-fill"></i> Lanjut ke BION ${last}</button>` : ''}
-        <button class="hero-btn ${last ? 'ghost' : ''}" onclick="navigateTo('join')"><i class="bi bi-camera-video-fill"></i> Join Kelas Sekarang</button>
+        <button class="hero-btn ${last ? 'ghost' : ''}" onclick="openJoinPicker()"><i class="bi bi-camera-video-fill"></i> Join Kelas Sekarang</button>
         ${last ? '' : `<button class="hero-btn ghost" onclick="document.getElementById('pilihJenjang').scrollIntoView({behavior:'smooth'})"><i class="bi bi-grid-fill"></i> Pilih Jenjang</button>`}
       </div>
     </section>
 
-    <button type="button" class="card-x card-click join-card" onclick="navigateTo('join')">
+    <button type="button" class="card-x card-click join-card" onclick="openJoinPicker()">
       <span class="join-icon"><i class="bi bi-camera-video-fill"></i></span>
       <span class="join-text"><span class="label-sm join-tag">Akses cepat</span>
         <span class="join-title">Join Kelas / Cari Jadwal</span>
-        <span class="join-desc">Langsung masuk kelas online. Pilih SD, SMP, atau SMA di langkah berikutnya.</span></span>
+        <span class="join-desc">Langsung masuk kelas online. Ketuk lalu pilih SD, SMP, atau SMA.</span></span>
       <i class="bi bi-arrow-right join-arrow" aria-hidden="true"></i>
     </button>
 
@@ -418,26 +421,108 @@ function viewJoin() {
       <p>Pilih jenjang Ananda untuk langsung masuk ke kelas online & jadwal bimbel.</p>
       <i class="bi bi-camera-video-fill tb-icon" aria-hidden="true"></i>
     </section>
-    <div class="join-list">
-      ${JENJANG_LIST.map(j => {
-        const m = JENJANG_META[j];
-        const item = menuFor(j).find(x => menuKode(x.id) === 'JOIN');
-        const ada = item && item.url;
-        return `<button type="button" class="card-x card-click join-pick t-${j}" onclick="openJoin('${j}')">
-          <span class="jc-icon"><i class="bi ${m.icon}"></i></span>
-          <span class="flex-grow-1 text-start"><span class="label-sm d-block" style="color:var(--c)">${m.kelas}</span>
-            <span class="join-pick-name">${m.nama}</span></span>
-          ${ada ? '<span class="pill pill-ok"><span class="dot"></span> Tersedia</span>' : '<span class="pill pill-wait">Segera</span>'}
-          <i class="bi bi-chevron-right text-muted" aria-hidden="true"></i>
-        </button>`;
-      }).join('')}
-    </div>
+    <div class="join-list">${joinPickHtml('join')}</div>
   </div>`;
 }
-function openJoin(j) {
-  lsSet(LS_LAST, j);
-  navigateTo('layanan', { j, id: j + '-JOIN', from: 'join' });
+
+/** Tombol pilihan SD / SMP / SMA untuk Join Kelas (dipakai halaman #join & pop-up). */
+function joinPickHtml(from) {
+  return JENJANG_LIST.map(j => {
+    const m = JENJANG_META[j];
+    const item = menuFor(j).find(x => menuKode(x.id) === 'JOIN');
+    const ada = item && item.url;
+    return `<button type="button" class="card-x card-click join-pick t-${j}" onclick="openJoin('${j}','${from}')">
+      <span class="jc-icon"><i class="bi ${m.icon}"></i></span>
+      <span class="flex-grow-1 text-start"><span class="label-sm d-block" style="color:var(--c)">${m.kelas}</span>
+        <span class="join-pick-name">${m.nama}</span></span>
+      ${ada ? '<span class="pill pill-ok"><span class="dot"></span> Tersedia</span>' : '<span class="pill pill-wait">Segera</span>'}
+      <i class="bi bi-chevron-right text-muted" aria-hidden="true"></i>
+    </button>`;
+  }).join('');
 }
+
+/** Pop-up Join Kelas: pilih jenjang tanpa pindah halaman dulu. */
+function openJoinPicker() {
+  if (!State.data) return;
+  $('#joinBody').innerHTML = joinPickHtml('beranda');
+  modal('joinModal').show();
+}
+
+function openJoin(j, from = 'join') {
+  lsSet(LS_LAST, j);
+  if (from === 'beranda') modal('joinModal').hide();
+  navigateTo('layanan', { j, id: j + '-JOIN', from });
+}
+
+// ── Menu "Kelas" di navigasi atas (desktop) & navigasi bawah (ponsel) ──
+
+/** Daftar submenu satu jenjang, dengan penanda menu yang sedang dibuka. */
+function kelasItemsHtml(j) {
+  const aktif = State.route.name === 'layanan' ? State.route.params.id : '';
+  return menuFor(j).map(item => {
+    const kode = menuKode(item.id);
+    const meta = SUBMENU_META[kode] || { icon: 'bi-grid' };
+    const ready = !!item.url || ['INFO', 'KONTAK'].includes(kode);
+    const on = item.id === aktif;
+    return `<button type="button" class="km-item ${on ? 'active' : ''} ${ready ? '' : 'is-soon'}" ${on ? 'aria-current="page"' : ''} onclick="pilihMenuKelas('${esc(item.id)}')">
+      <span class="km-ic"><i class="bi ${meta.icon}"></i></span><span class="km-name">${esc(item.submenu)}</span>
+      ${ready ? '' : '<span class="km-soon">Segera</span>'}
+    </button>`;
+  }).join('') || '<p class="body-sm px-2 mb-0">Belum ada layanan.</p>';
+}
+
+function toggleKelasMenu(force) {
+  const panel = $('#kelasPanel'), btn = $('#kelasBtn');
+  const buka = typeof force === 'boolean' ? force : panel.hidden;
+  if (buka) {
+    panel.innerHTML = State.data ? JENJANG_LIST.map(j => {
+      const m = JENJANG_META[j];
+      return `<div class="km-col t-${j}">
+        <button type="button" class="km-head" onclick="pilihJenjangKelas('${j}')">
+          <span class="km-dot"></span><span><b>${m.nama}</b><small>${m.kelas}</small></span><i class="bi bi-arrow-right"></i>
+        </button>
+        ${kelasItemsHtml(j)}
+      </div>`;
+    }).join('') : '<p class="body-sm p-2 mb-0">Memuat menu…</p>';
+  }
+  panel.hidden = !buka;
+  btn.setAttribute('aria-expanded', String(buka));
+}
+const closeKelasMenu = () => { const p = $('#kelasPanel'); if (p && !p.hidden) toggleKelasMenu(false); };
+
+/** Versi ponsel: pop-up dengan tab SD / SMP / SMA. */
+function openKelasSheet(j) {
+  if (!State.data) return;
+  j = j || document.body.dataset.jenjang || lsGet(LS_LAST) || 'SD';
+  $('#kelasBody').innerHTML = `
+    <div class="chip-row mb-3" role="tablist" aria-label="Pilih jenjang">
+      ${JENJANG_LIST.map(x => `<button class="chip t-${x} ${x === j ? 'active' : ''}" role="tab" aria-selected="${x === j}" onclick="openKelasSheet('${x}')"><span class="dot"></span>BION ${x}</button>`).join('')}
+    </div>
+    <div class="km-list t-${j}">${kelasItemsHtml(j)}</div>
+    <button type="button" class="btn-soft w-100 mt-3" onclick="pilihJenjangKelas('${j}')"><i class="bi bi-grid"></i> Buka halaman BION ${j}</button>`;
+  modal('kelasModal').show();
+}
+
+function tutupPilihanKelas() {
+  closeKelasMenu();
+  const el = document.getElementById('kelasModal');
+  if (el && el.classList.contains('show')) modal('kelasModal').hide();
+}
+function pilihMenuKelas(id) {
+  tutupPilihanKelas();
+  const item = State.data.menu.find(m => m.id === id);
+  if (item) lsSet(LS_LAST, item.jenjang);
+  openLayanan(id);
+}
+function pilihJenjangKelas(j) {
+  tutupPilihanKelas();
+  openJenjang(j);
+}
+
+// Tutup panel Kelas saat klik di luar, tekan Esc, atau fokus pindah ke iframe layanan
+document.addEventListener('click', (e) => { if (!e.target.closest('#kelasDd')) closeKelasMenu(); });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeKelasMenu(); });
+window.addEventListener('blur', closeKelasMenu);
 
 function openJenjang(j) {
   lsSet(LS_LAST, j);
@@ -492,7 +577,12 @@ function viewJenjang({ j }) {
 }
 
 /** Kode onclick tombol kembali dari halaman layanan. */
-function backJs(j, from) { return from === 'join' ? "navigateTo('join')" : `navigateTo('jenjang',{j:'${j}'})`; }
+function backJs(j, from) {
+  if (from === 'join') return "navigateTo('join')";
+  if (from === 'beranda') return "navigateTo('beranda')";
+  return `navigateTo('jenjang',{j:'${j}'})`;
+}
+const backLabel = (j, from) => from === 'join' ? 'Pilih jenjang' : from === 'beranda' ? 'Beranda' : 'BION ' + j;
 
 /** Klik kartu submenu: halaman bawaan (Pengumuman/Kontak) atau iframe. */
 function openLayanan(id) {
@@ -516,7 +606,7 @@ function viewLayanan({ id, from }) {
   if (!item.url) {
     app().innerHTML = `
     <div class="container-app">
-      <div class="tier-switch mb-2"><button class="chip" onclick="${backJs(j, from)}"><i class="bi bi-arrow-left"></i> ${from === 'join' ? 'Pilih jenjang' : 'BION ' + j}</button></div>
+      <div class="tier-switch mb-2"><button class="chip" onclick="${backJs(j, from)}"><i class="bi bi-arrow-left"></i> ${backLabel(j, from)}</button></div>
       ${emptyState('bi-tools', 'Menu ini sedang dalam pengembangan',
         `Layanan <b>${esc(item.submenu)}</b> untuk BION ${j} belum tersedia. Silakan cek kembali nanti atau hubungi staf kami.`,
         `<div class="d-flex gap-2 justify-content-center flex-wrap">
