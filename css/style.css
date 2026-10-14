@@ -141,16 +141,17 @@ button { font-family: inherit; }
 .top-nav-link.active { color: var(--tier); background: var(--tier-subtle); }
 body[data-jenjang=""] .top-nav-link.active { color: var(--text); }
 
-/* Menu "Kelas" (dropdown desktop) */
-.header-inner { position: relative; }
-.nav-dd { display: flex; }
-.nav-dd .top-nav-link { display: inline-flex; align-items: center; gap: .3rem; }
+/* Menu jenjang SD / SMP / SMA (dropdown desktop) */
+.nav-dd { display: flex; position: relative; }
+.nav-dd .top-nav-link { display: inline-flex; align-items: center; gap: .35rem; }
+.nav-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--c); flex-shrink: 0; }
 .nav-caret { font-size: 11px; transition: transform .2s var(--ease); }
+.nav-dd .top-nav-link.active { color: var(--c-strong); background: var(--c-subtle); }
 .top-nav-link[aria-expanded="true"] { background: var(--surface-2); color: var(--text); }
 .top-nav-link[aria-expanded="true"] .nav-caret { transform: rotate(180deg); }
 .kelas-panel {
-  position: absolute; top: calc(100% + 6px); left: 2rem; right: 2rem; max-width: 880px; z-index: 1030;
-  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .75rem; padding: .85rem;
+  position: absolute; top: calc(100% + 10px); left: 0; width: 300px; z-index: 1030;
+  display: block; padding: .6rem;
   background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); box-shadow: var(--shadow-4);
   animation: kpIn .16s var(--ease);
 }

@@ -309,11 +309,12 @@ function render() {
   closeKelasMenu();
 
   // Tandai menu navigasi aktif
+  // Navigasi atas menandai jenjangnya (SD/SMP/SMA); navigasi bawah ponsel menandai "Kelas"
   const navKey = ['pengumuman', 'kontak'].includes(name) ? name
-    : ['jenjang', 'layanan'].includes(name) ? 'kelas'
+    : ['jenjang', 'layanan'].includes(name) ? j
     : (name === 'staf' ? '' : 'beranda');
   document.querySelectorAll('[data-nav]').forEach(b => {
-    const on = b.dataset.nav === navKey;
+    const on = b.dataset.nav === navKey || (b.dataset.nav === 'kelas' && JENJANG_LIST.includes(navKey));
     b.classList.toggle('active', on);
     if (on) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
   });
@@ -454,7 +455,7 @@ function openJoin(j, from = 'join') {
   navigateTo('layanan', { j, id: j + '-JOIN', from });
 }
 
-// ── Menu "Kelas" di navigasi atas (desktop) & navigasi bawah (ponsel) ──
+// ── Menu jenjang di navigasi atas (desktop) & tombol "Jenjang" navigasi bawah (ponsel) ──
 
 /** Daftar submenu satu jenjang, dengan penanda menu yang sedang dibuka. */
 function kelasItemsHtml(j) {
@@ -471,24 +472,28 @@ function kelasItemsHtml(j) {
   }).join('') || '<p class="body-sm px-2 mb-0">Belum ada layanan.</p>';
 }
 
-function toggleKelasMenu(force) {
-  const panel = $('#kelasPanel'), btn = $('#kelasBtn');
+/** Buka/tutup daftar layanan satu jenjang di navigasi atas (SD / SMP / SMA). */
+function toggleKelasMenu(j, force) {
+  const panel = $('#ddPanel-' + j), btn = $('#ddBtn-' + j);
+  if (!panel) return;
   const buka = typeof force === 'boolean' ? force : panel.hidden;
   if (buka) {
-    panel.innerHTML = State.data ? JENJANG_LIST.map(j => {
-      const m = JENJANG_META[j];
-      return `<div class="km-col t-${j}">
+    closeKelasMenu(); // hanya satu daftar terbuka
+    const m = JENJANG_META[j];
+    panel.innerHTML = State.data ? `<div class="km-col t-${j}">
         <button type="button" class="km-head" onclick="pilihJenjangKelas('${j}')">
-          <span class="km-dot"></span><span><b>${m.nama}</b><small>${m.kelas}</small></span><i class="bi bi-arrow-right"></i>
+          <span class="km-dot"></span><span><b>${m.nama}</b><small>${m.kelas} · lihat semua</small></span><i class="bi bi-arrow-right"></i>
         </button>
         ${kelasItemsHtml(j)}
-      </div>`;
-    }).join('') : '<p class="body-sm p-2 mb-0">Memuat menu…</p>';
+      </div>` : '<p class="body-sm p-2 mb-0">Memuat menu…</p>';
   }
   panel.hidden = !buka;
   btn.setAttribute('aria-expanded', String(buka));
 }
-const closeKelasMenu = () => { const p = $('#kelasPanel'); if (p && !p.hidden) toggleKelasMenu(false); };
+const closeKelasMenu = () => JENJANG_LIST.forEach(j => {
+  const p = $('#ddPanel-' + j);
+  if (p && !p.hidden) { p.hidden = true; $('#ddBtn-' + j).setAttribute('aria-expanded', 'false'); }
+});
 
 /** Versi ponsel: pop-up dengan tab SD / SMP / SMA. */
 function openKelasSheet(j) {
@@ -520,7 +525,7 @@ function pilihJenjangKelas(j) {
 }
 
 // Tutup panel Kelas saat klik di luar, tekan Esc, atau fokus pindah ke iframe layanan
-document.addEventListener('click', (e) => { if (!e.target.closest('#kelasDd')) closeKelasMenu(); });
+document.addEventListener('click', (e) => { if (!e.target.closest('.nav-dd')) closeKelasMenu(); });
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeKelasMenu(); });
 window.addEventListener('blur', closeKelasMenu);
 

@@ -36,12 +36,24 @@
       <!-- Navigasi atas (tablet/desktop) -->
       <nav class="top-nav" aria-label="Navigasi utama">
         <button type="button" class="top-nav-link" data-nav="beranda" onclick="navigateTo('beranda')">Beranda</button>
-        <!-- Menu Kelas: klik untuk membuka daftar layanan SD / SMP / SMA -->
-        <div class="nav-dd" id="kelasDd">
-          <button type="button" class="top-nav-link" data-nav="kelas" id="kelasBtn" aria-haspopup="true" aria-expanded="false" aria-controls="kelasPanel" onclick="toggleKelasMenu()">
-            Kelas <i class="bi bi-chevron-down nav-caret" aria-hidden="true"></i>
+        <!-- Menu jenjang: klik untuk membuka daftar layanan jenjang tsb -->
+        <div class="nav-dd t-SD">
+          <button type="button" class="top-nav-link" data-nav="SD" id="ddBtn-SD" aria-haspopup="true" aria-expanded="false" aria-controls="ddPanel-SD" onclick="toggleKelasMenu('SD')">
+            <span class="nav-dot"></span>SD <i class="bi bi-chevron-down nav-caret" aria-hidden="true"></i>
           </button>
-          <div class="kelas-panel" id="kelasPanel" hidden></div>
+          <div class="kelas-panel" id="ddPanel-SD" hidden></div>
+        </div>
+        <div class="nav-dd t-SMP">
+          <button type="button" class="top-nav-link" data-nav="SMP" id="ddBtn-SMP" aria-haspopup="true" aria-expanded="false" aria-controls="ddPanel-SMP" onclick="toggleKelasMenu('SMP')">
+            <span class="nav-dot"></span>SMP <i class="bi bi-chevron-down nav-caret" aria-hidden="true"></i>
+          </button>
+          <div class="kelas-panel" id="ddPanel-SMP" hidden></div>
+        </div>
+        <div class="nav-dd t-SMA">
+          <button type="button" class="top-nav-link" data-nav="SMA" id="ddBtn-SMA" aria-haspopup="true" aria-expanded="false" aria-controls="ddPanel-SMA" onclick="toggleKelasMenu('SMA')">
+            <span class="nav-dot"></span>SMA <i class="bi bi-chevron-down nav-caret" aria-hidden="true"></i>
+          </button>
+          <div class="kelas-panel" id="ddPanel-SMA" hidden></div>
         </div>
         <button type="button" class="top-nav-link" data-nav="pengumuman" onclick="navigateTo('pengumuman')">Pengumuman</button>
         <button type="button" class="top-nav-link" data-nav="kontak" onclick="navigateTo('kontak')">Kontak</button>
@@ -91,7 +103,7 @@
       <i class="bi bi-house-door-fill" aria-hidden="true"></i><span>Beranda</span>
     </button>
     <button type="button" class="bn-item" data-nav="kelas" onclick="openKelasSheet()">
-      <i class="bi bi-grid-fill" aria-hidden="true"></i><span>Kelas</span>
+      <i class="bi bi-grid-fill" aria-hidden="true"></i><span>Jenjang</span>
     </button>
     <button type="button" class="bn-item" data-nav="pengumuman" onclick="navigateTo('pengumuman')">
       <i class="bi bi-megaphone-fill" aria-hidden="true"></i><span>Pengumuman</span>
@@ -160,12 +172,12 @@
     </div>
   </div>
 
-  <!-- ══════════ MODAL: Menu Kelas (ponsel) ══════════ -->
+  <!-- ══════════ MODAL: Menu Jenjang (ponsel) ══════════ -->
   <div class="modal fade" id="kelasModal" tabindex="-1" aria-labelledby="kelasModalTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
       <div class="modal-content">
         <div class="modal-header">
-          <h2 class="modal-title h-md" id="kelasModalTitle"><i class="bi bi-grid-fill"></i> Menu Kelas</h2>
+          <h2 class="modal-title h-md" id="kelasModalTitle"><i class="bi bi-grid-fill"></i> Pilih Jenjang</h2>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
         </div>
         <div class="modal-body" id="kelasBody"></div>
